@@ -2,8 +2,9 @@
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 # More info on Python, GitHub Actions, and Azure App Service: https://aka.ms/python-webapps-actions
 
-name: Build and Deploy Python App to Azure Web App - FoodVision
+name: Build and deploy Python app to Azure Web App - foodvision
 
+# Trigger workflow on push to main branch or manually
 on:
   push:
     branches:
@@ -14,56 +15,55 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: read  # Required for actions/checkout
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # 1. Checkout your repository
+      - uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      # 2. Set up Python version
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      # 3. Install dependencies (optional step to catch issues early)
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+        run: pip install -r requirements.txt
 
+      # 4. Upload artifact for deployment
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
         with:
           name: python-app
-          path: .  # upload everything except files in .gitignore
+          path: .
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write
+      id-token: write    # Required for requesting JWT
       contents: read
 
     steps:
-      - name: Download artifact from build job
+      # 1. Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: python-app
 
+      # 2. Login to Azure
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_B3A7318C2FD841159938FC302271A97E }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0F7D008537C2498C8EE449B8FA76795D }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4FC9794FC32E484A8E959EC8F4AF57DA }}
 
-      - name: Stop Azure Web App (to avoid 409 conflicts)
-        run: az webapp stop --name foodvision --resource-group foodvision-rg
-
+      # 3. Deploy to Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'foodvision'
           slot-name: 'Production'
-
-      - name: Start Azure Web App
-        run: az webapp start --name foodvision --resource-group foodvision-rg
+          package: .
