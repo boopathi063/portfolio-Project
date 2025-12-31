@@ -1,0 +1,22 @@
+{
+  "pizza": 285,
+  "hamburger": 295,
+  "hot_dog": 280,
+  "french_fries": 312,
+  "fried_rice": 250,
+  "spaghetti": 220,
+  "ramen": 270,
+  "sushi": 200,
+  "steak": 350,
+  "grilled_chicken": 240,
+  "salad": 150,
+  "caesar_salad": 180,
+  "sandwich": 230,
+  "tacos": 260,
+  "pancakes": 227,
+  "waffles": 291,
+  "ice_cream": 207,
+  "donuts": 260,
+  "apple_pie": 237,
+  "cheesecake": 321
+}
